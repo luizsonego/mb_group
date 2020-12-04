@@ -12,11 +12,23 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $search = $request->get('search');
-        
-        $products = Products::latest()->paginate(5);
+
+        $products = Products::where([
+            ['name', '!=', NULL],
+            ['code', '!=', NULL],
+            [function ($query) use ($request) {
+                if (($term = $request->term)) {
+                    $query->orWhere('name', 'LIKE', '%' . $term . '%')->get();
+                    $query->orWhere('code', 'LIKE', '%' . $term . '%')->get();
+                }
+            }]
+        ])
+        ->orderBy('id', 'desc')
+        ->paginate(10);
+
+        // $products = Products::latest()->paginate(5);
 
         return view('products.index', compact('products'));
     }

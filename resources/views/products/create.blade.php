@@ -49,7 +49,7 @@
               <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                   <strong>Preço unitario:</strong>
-                  <input type="text" name="unit_price" class="form-control" placeholder="Preço unitario" required>
+                  <input type="text" name="unit_price" id="product" class="form-control" placeholder="Preço unitario" required>
                 </div>
               </div>
 
@@ -63,5 +63,6 @@
     </div>
 
 </div>
+
 
 @endsection

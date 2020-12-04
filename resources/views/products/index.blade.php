@@ -19,6 +19,30 @@
         </div>
     @endif
 
+    <div>
+        <div class="mx-auto float-right">
+            <div class="">
+    <form action="{{ route('products.index') }}" method="GET" role="search">
+        <div class="input-group">
+            <span class="input-group-btn mr-5 mt-1">
+                <button class="btn btn-info" type="submit" title="Search projects">
+                    <span class="fas fa-search"></span>
+                </button>
+            </span>
+            <input type="text" class="form-control mr-2" name="term" placeholder="Search projects" id="term">
+            <a href="{{ route('products.index') }}" class=" mt-1">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" title="Refresh page">
+                        <span class="fas fa-sync-alt"></span>
+                    </button>
+                </span>
+            </a>
+        </div>
+    </form>
+            </div>
+        </div>
+    </div>
+
     <table class="table table-bordered table-responsive-lg">
         <tr>
             <th>Cod.</th>
@@ -59,5 +83,6 @@
     {!! $products->links() !!}
 
 </div>
+
 
 @endsection
