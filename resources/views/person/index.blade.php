@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-12 margin-tb mb-3">
             <div class="float-right">
-                <a class="btn btn-success" href="{{ route('products.create') }}" title="Criar produto"> <i class="fas fa-plus-circle"></i>
+                <a class="btn btn-success" href="{{ route('person.create') }}" title="Criar produto"> <i class="fas fa-plus-circle"></i>
                     Criar </a>
             </div>
         </div>
@@ -21,18 +21,18 @@
 
     <div>
         <div class="mx-auto float-right mb-3">
-            <form action="{{ route('products.index') }}" method="GET" role="search">
+            <form action="{{ route('person.index') }}" method="GET" role="search">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="term" placeholder="Busque por codigo ou nome" id="term">
+                    <input type="text" class="form-control" name="term" placeholder="Buscar" id="term">
                     <div class="input-group-prepend">
                         <span class="input-group-btn">
-                            <button class="btn btn-info" type="submit" title="buscar">
+                            <button class="btn btn-info" type="submit" title="Buscar">
                                 <span class="fas fa-search"></span>
                             </button>
                         </span>
                     </div>
                     <div class="input-group-prepend">
-                        <a href="{{ route('products.index') }}" class=" ">
+                        <a href="{{ route('person.index') }}" class="">
                             <span class="input-group-btn">
                                 <button class="btn btn-danger" type="button" title="Limpar busca">
                                     <span class="fas fa-sync-alt"></span>
@@ -47,24 +47,24 @@
 
     <table class="table table-bordered table-responsive-lg">
         <tr>
-            <th>Cod.</th>
             <th>Nome</th>
-            <th>Preço unitario</th>
+            <th>cpf</th>
+            <th>Aniversario</th>
             <th width="280px">Action</th>
         </tr>
-        @foreach ($products as $product)
+        @foreach ($person as $p)
             <tr>
-                <td>{{ $product->code }}</td>
-                <td>{{ $product->name }}</td>
-                <td>{{ $product->unit_price }}</td>
+                <td>{{ $p->name }}</td>
+                <td>{{ $p->cpf }}</td>
+                <td>{{ $p->date_of_birth }}</td>
                 <td>
-                    <form action="{{ route('products.destroy', $product->id) }}" method="POST">
+                    <form action="{{ route('person.destroy', $p->id) }}" method="POST">
 
-                        <a href="{{ route('products.show', $product->id) }}" title="show">
+                        <a href="{{ route('person.show', $p->id) }}" title="show">
                             <i class="fas fa-eye text-success  fa-lg"></i>
                         </a>
 
-                        <a href="{{ route('products.edit', $product->id) }}">
+                        <a href="{{ route('person.edit', $p->id) }}">
                             <i class="fas fa-edit  fa-lg"></i>
                         </a>
 
@@ -73,6 +73,7 @@
 
                         <button type="submit" title="delete" style="border: none; background-color:transparent;">
                             <i class="fas fa-trash fa-lg text-danger"></i>
+
                         </button>
                     </form>
                 </td>
@@ -81,7 +82,7 @@
     </table>
 
 
-    {!! $products->links() !!}
+    {!! $person->links() !!}
 
 </div>
 

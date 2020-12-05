@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Products;
+use App\Models\Person;
 use Illuminate\Http\Request;
 
-class ProductsController extends Controller
+class PersonController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,23 +14,22 @@ class ProductsController extends Controller
      */
     public function index(Request $request)
     {
-
-        $products = Products::where([
+        $person = Person::where([
             ['name', '!=', NULL],
-            ['code', '!=', NULL],
+            ['cpf', '!=', NULL],
+            ['date_of_birth', '!=', NULL],
             [function ($query) use ($request) {
                 if (($term = $request->term)) {
                     $query->orWhere('name', 'LIKE', '%' . $term . '%')->get();
-                    $query->orWhere('code', 'LIKE', '%' . $term . '%')->get();
+                    $query->orWhere('cpf', 'LIKE', '%' . $term . '%')->get();
+                    $query->orWhere('date_of_birth', 'LIKE', '%' . $term . '%')->get();
                 }
             }]
         ])
         ->orderBy('id', 'desc')
         ->paginate(10);
 
-        // $products = Products::latest()->paginate(5);
-
-        return view('products.index', compact('products'));
+        return view('person.index', compact('person'));
     }
 
     /**
@@ -40,7 +39,7 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        return view('person.create');
     }
 
     /**
@@ -52,71 +51,71 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code'=>'required',
             'name'=>'required',
-            'unit_price'=>'required',
+            'cpf'=>'required|cpf',
+            'date_of_birth'=>'required',
         ]);
 
-        Products::create($request->all());
+        Person::create($request->all());
 
-        return redirect()->route('products.index')
-            ->with('success', 'Produto criado com sucesso');
+        return redirect()->route('person.index')
+            ->with('success', 'Pessoa criado com sucesso');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Products  $products
+     * @param  \App\Models\Person  $person
      * @return \Illuminate\Http\Response
      */
-    public function show(Products $product)
+    public function show(Person $person)
     {
-        return view('products.show', compact('product'));
+        return view('person.show', compact('person'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Products  $products
+     * @param  \App\Models\Person  $person
      * @return \Illuminate\Http\Response
      */
-    public function edit(Products $product)
+    public function edit(Person $person)
     {
-        return view('products.edit', compact('product'));
+        return view('person.edit', compact('person'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Products  $products
+     * @param  \App\Models\Person  $person
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Products $product)
+    public function update(Request $request, Person $person)
     {
         $request->validate([
-            'code'=>'required',
             'name'=>'required',
-            'unit_price'=>'required'
+            'cpf'=>'required',
+            'date_of_birth'=>'required'
         ]);
 
-        $product->update($request->all());
+        $person->update($request->all());
 
-        return redirect()->route('products.index')
-            ->with('success', 'Produto atualizado com sucesso');
+        return redirect()->route('person.index')
+            ->with('success', 'Pessoa atualizada com sucesso');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Products  $products
+     * @param  \App\Models\Person  $person
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Products $product)
+    public function destroy(Person $person)
     {
-        $product->delete();
+        $person->delete();
 
-        return redirect()->route('products.index')
-            ->with('success', 'Produto deletado com sucesso');
+        return redirect()->route('person.index')
+            ->with('success', 'Pessoa deletada com sucesso');
     }
 }
