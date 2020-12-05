@@ -6360,6 +6360,595 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/di-vue-mask/dist/vue-mask.esm.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/di-vue-mask/dist/vue-mask.esm.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(global) {/**
+  * di-vue-mask v1.1.0
+  * (c) 2017 Sergio Rodrigues
+  * @license MIT
+  */
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var stringMask = createCommonjsModule(function (module, exports) {
+(function(root, factory) {
+    /* istanbul ignore next */
+    if (false) {} else {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory();
+    }
+}(commonjsGlobal, function() {
+    var tokens = {
+        '0': {pattern: /\d/, _default: '0'},
+        '9': {pattern: /\d/, optional: true},
+        '#': {pattern: /\d/, optional: true, recursive: true},
+        'A': {pattern: /[a-zA-Z0-9]/},
+        'S': {pattern: /[a-zA-Z]/},
+        'U': {pattern: /[a-zA-Z]/, transform: function(c) { return c.toLocaleUpperCase(); }},
+        'L': {pattern: /[a-zA-Z]/, transform: function(c) { return c.toLocaleLowerCase(); }},
+        '$': {escape: true}
+    };
+
+    function isEscaped(pattern, pos) {
+        var count = 0;
+        var i = pos - 1;
+        var token = {escape: true};
+        while (i >= 0 && token && token.escape) {
+            token = tokens[pattern.charAt(i)];
+            count += token && token.escape ? 1 : 0;
+            i--;
+        }
+        return count > 0 && count % 2 === 1;
+    }
+
+    function calcOptionalNumbersToUse(pattern, value) {
+        var numbersInP = pattern.replace(/[^0]/g,'').length;
+        var numbersInV = value.replace(/[^\d]/g,'').length;
+        return numbersInV - numbersInP;
+    }
+
+    function concatChar(text, character, options, token) {
+        if (token && typeof token.transform === 'function') {
+            character = token.transform(character);
+        }
+        if (options.reverse) {
+            return character + text;
+        }
+        return text + character;
+    }
+
+    function hasMoreTokens(pattern, pos, inc) {
+        var pc = pattern.charAt(pos);
+        var token = tokens[pc];
+        if (pc === '') {
+            return false;
+        }
+        return token && !token.escape ? true : hasMoreTokens(pattern, pos + inc, inc);
+    }
+
+    function hasMoreRecursiveTokens(pattern, pos, inc) {
+        var pc = pattern.charAt(pos);
+        var token = tokens[pc];
+        if (pc === '') {
+            return false;
+        }
+        return token && token.recursive ? true : hasMoreRecursiveTokens(pattern, pos + inc, inc);
+    }
+
+    function insertChar(text, char, position) {
+        var t = text.split('');
+        t.splice(position, 0, char);
+        return t.join('');
+    }
+
+    function StringMask(pattern, opt) {
+        this.options = opt || {};
+        this.options = {
+            reverse: this.options.reverse || false,
+            usedefaults: this.options.usedefaults || this.options.reverse
+        };
+        this.pattern = pattern;
+    }
+
+    StringMask.prototype.process = function proccess(value) {
+        var this$1 = this;
+
+        if (!value) {
+            return {result: '', valid: false};
+        }
+        value = value + '';
+        var pattern2 = this.pattern;
+        var valid = true;
+        var formatted = '';
+        var valuePos = this.options.reverse ? value.length - 1 : 0;
+        var patternPos = 0;
+        var optionalNumbersToUse = calcOptionalNumbersToUse(pattern2, value);
+        var escapeNext = false;
+        var recursive = [];
+        var inRecursiveMode = false;
+
+        var steps = {
+            start: this.options.reverse ? pattern2.length - 1 : 0,
+            end: this.options.reverse ? -1 : pattern2.length,
+            inc: this.options.reverse ? -1 : 1
+        };
+
+        function continueCondition(options) {
+            if (!inRecursiveMode && !recursive.length && hasMoreTokens(pattern2, patternPos, steps.inc)) {
+                // continue in the normal iteration
+                return true;
+            } else if (!inRecursiveMode && recursive.length &&
+                hasMoreRecursiveTokens(pattern2, patternPos, steps.inc)) {
+                // continue looking for the recursive tokens
+                // Note: all chars in the patterns after the recursive portion will be handled as static string
+                return true;
+            } else if (!inRecursiveMode) {
+                // start to handle the recursive portion of the pattern
+                inRecursiveMode = recursive.length > 0;
+            }
+
+            if (inRecursiveMode) {
+                var pc = recursive.shift();
+                recursive.push(pc);
+                if (options.reverse && valuePos >= 0) {
+                    patternPos++;
+                    pattern2 = insertChar(pattern2, pc, patternPos);
+                    return true;
+                } else if (!options.reverse && valuePos < value.length) {
+                    pattern2 = insertChar(pattern2, pc, patternPos);
+                    return true;
+                }
+            }
+            return patternPos < pattern2.length && patternPos >= 0;
+        }
+
+        /**
+         * Iterate over the pattern's chars parsing/matching the input value chars
+         * until the end of the pattern. If the pattern ends with recursive chars
+         * the iteration will continue until the end of the input value.
+         *
+         * Note: The iteration must stop if an invalid char is found.
+         */
+        for (patternPos = steps.start; continueCondition(this.options); patternPos = patternPos + steps.inc) {
+            // Value char
+            var vc = value.charAt(valuePos);
+            // Pattern char to match with the value char
+            var pc = pattern2.charAt(patternPos);
+
+            var token = tokens[pc];
+            if (recursive.length && token && !token.recursive) {
+                // In the recursive portion of the pattern: tokens not recursive must be seen as static chars
+                token = null;
+            }
+
+            // 1. Handle escape tokens in pattern
+            // go to next iteration: if the pattern char is a escape char or was escaped
+            if (!inRecursiveMode || vc) {
+                if (this$1.options.reverse && isEscaped(pattern2, patternPos)) {
+                    // pattern char is escaped, just add it and move on
+                    formatted = concatChar(formatted, pc, this$1.options, token);
+                    // skip escape token
+                    patternPos = patternPos + steps.inc;
+                    continue;
+                } else if (!this$1.options.reverse && escapeNext) {
+                    // pattern char is escaped, just add it and move on
+                    formatted = concatChar(formatted, pc, this$1.options, token);
+                    escapeNext = false;
+                    continue;
+                } else if (!this$1.options.reverse && token && token.escape) {
+                    // mark to escape the next pattern char
+                    escapeNext = true;
+                    continue;
+                }
+            }
+
+            // 2. Handle recursive tokens in pattern
+            // go to next iteration: if the value str is finished or
+            //                       if there is a normal token in the recursive portion of the pattern
+            if (!inRecursiveMode && token && token.recursive) {
+                // save it to repeat in the end of the pattern and handle the value char now
+                recursive.push(pc);
+            } else if (inRecursiveMode && !vc) {
+                // in recursive mode but value is finished. Add the pattern char if it is not a recursive token
+                formatted = concatChar(formatted, pc, this$1.options, token);
+                continue;
+            } else if (!inRecursiveMode && recursive.length > 0 && !vc) {
+                // recursiveMode not started but already in the recursive portion of the pattern
+                continue;
+            }
+
+            // 3. Handle the value
+            // break iterations: if value is invalid for the given pattern
+            if (!token) {
+                // add char of the pattern
+                formatted = concatChar(formatted, pc, this$1.options, token);
+                if (!inRecursiveMode && recursive.length) {
+                    // save it to repeat in the end of the pattern
+                    recursive.push(pc);
+                }
+            } else if (token.optional) {
+                // if token is optional, only add the value char if it matchs the token pattern
+                //                       if not, move on to the next pattern char
+                if (token.pattern.test(vc) && optionalNumbersToUse) {
+                    formatted = concatChar(formatted, vc, this$1.options, token);
+                    valuePos = valuePos + steps.inc;
+                    optionalNumbersToUse--;
+                } else if (recursive.length > 0 && vc) {
+                    valid = false;
+                    break;
+                }
+            } else if (token.pattern.test(vc)) {
+                // if token isn't optional the value char must match the token pattern
+                formatted = concatChar(formatted, vc, this$1.options, token);
+                valuePos = valuePos + steps.inc;
+            } else if (!vc && token._default && this$1.options.usedefaults) {
+                // if the token isn't optional and has a default value, use it if the value is finished
+                formatted = concatChar(formatted, token._default, this$1.options, token);
+            } else {
+                // the string value don't match the given pattern
+                valid = false;
+                break;
+            }
+        }
+
+        return {result: formatted, valid: valid};
+    };
+
+    StringMask.prototype.apply = function(value) {
+        return this.process(value).result;
+    };
+
+    StringMask.prototype.validate = function(value) {
+        return this.process(value).valid;
+    };
+
+    StringMask.process = function(value, pattern, options) {
+        return new StringMask(pattern, options).process(value);
+    };
+
+    StringMask.apply = function(value, pattern, options) {
+        return new StringMask(pattern, options).apply(value);
+    };
+
+    StringMask.validate = function(value, pattern, options) {
+        return new StringMask(pattern, options).validate(value);
+    };
+
+    return StringMask;
+}));
+});
+
+var getInputElement = function (el, vnode) {
+  return vnode.tag === 'input' ? el : el.querySelector('input:not([readonly])');
+};
+
+var filterNumbers = function (v) { return v.replace(/\D/g, ''); };
+
+var filterLetters = function (v) { return v.replace(/[^a-zA-Z]/g, ''); };
+
+var filterAlphanumeric = function (v) { return v.replace(/[^a-zA-Z0-9]/g, ''); };
+
+var getCleaner = function (clearValue) {
+  if (typeof clearValue === 'function') {
+    return clearValue;
+  }
+
+  switch (clearValue) {
+    case 'number':
+      return filterNumbers;
+      break;
+    case 'letter':
+      return filterLetters;
+      break;
+    default:
+      return filterAlphanumeric;
+  }
+};
+
+function createHandler(ref) {
+  var clean = ref.clean;
+  var format = ref.format;
+  var formatter = ref.formatter;
+
+  return function (ref) {
+    var target = ref.target;
+    var type = ref.type;
+    var isTrusted = ref.isTrusted;
+
+    if (type === 'paste') {
+      target.value = '';
+    }
+
+    var value = clean(target.value);
+    target.value = format({value: value, formatter: formatter});
+    target.dataset.value = target.value;
+
+    if (type === 'mask' || isTrusted) {
+      target.dispatchEvent(new Event('input'));
+    }
+  }
+}
+
+function defaultFormat(ref) {
+  var value = ref.value;
+  var formatter = ref.formatter;
+
+  value = formatter.apply(value);
+  return value.trim().replace(/[^0-9]$/, '');
+}
+
+function maskFactory(bind) {
+  return {
+    bind: function bind$1(el, binding, vnode) {
+      var mask = bind(el, binding, vnode);
+
+      var clean = getCleaner(mask.clearValue);
+      var format = mask.format || defaultFormat;
+      var formatter = mask.pattern ? new stringMask(mask.pattern, mask.options || {}) : null;
+      var handler = createHandler({clean: clean, format: format, formatter: formatter});
+
+      el = getInputElement(el, vnode);
+
+      el.addEventListener('input', handler, false);
+      el.addEventListener('paste', handler, false);
+      el.addEventListener('blur', handler, false);
+      el.addEventListener('mask', handler, false);
+
+      handler({target: el, type: 'mask'});
+    },
+    update: function update (el, ref, vnode) {
+      el = getInputElement(el, vnode);
+      _Vue.nextTick(function () {
+        var previousValue = el.dataset.value || '';
+        if (previousValue !== el.value) {
+          el.dispatchEvent(new Event('mask'));
+        }
+      });
+    }
+  }
+}
+
+var mask = maskFactory(function (el, ref) {
+  var value = ref.value;
+
+  return {
+    pattern: value,
+    format: function format(ref) {
+      var value = ref.value;
+      var formatter = ref.formatter;
+
+      value = formatter.apply(value);
+      return value.trim().replace(/[^a-zA-Z0-9]$/, '');
+    }
+  }
+});
+
+var patterns = {
+  us: '0000-00-00',
+  br: '00/00/0000'
+};
+
+var date = maskFactory(function (el, ref) {
+  var arg = ref.arg;
+  var modifiers = ref.modifiers;
+
+  var key = arg || Object.keys(modifiers)[0] || 'us';
+  var pattern = patterns[key];
+
+  return {
+    pattern: pattern,
+    clearValue: 'number'
+  }
+});
+
+var formatters = {
+  get us() {
+    var phone = new stringMask('(000) 000-0000');
+
+    return {
+      format: function format(value) {
+        return phone.apply(value);
+      }
+    }
+  },
+  get br() {
+    var phone = new stringMask('(00) 0000-0000');
+    var phone9 = new stringMask('(00) 9 0000-0000');
+    var phone0800 = new stringMask('0000-000-0000');
+
+    return {
+      format: function format(value) {
+        if (value.indexOf('0800') === 0) {
+          value = phone0800.apply(value);
+        } else if (value.length <= 10) {
+          value = phone.apply(value);
+        } else {
+          value = phone9.apply(value);
+        }
+        return value;
+      }
+    }
+  }
+};
+
+var phone = maskFactory(function (el, ref) {
+  var arg = ref.arg;
+  var modifiers = ref.modifiers;
+
+  var key = arg || Object.keys(modifiers)[0] || 'us';
+  var formatter = formatters[key];
+
+  return {
+    clearValue: 'number',
+    format: function format(ref) {
+      var value = ref.value;
+
+      value = formatter.format(value);
+      return value.trim().replace(/[^0-9]$/, '');
+    }
+  }
+});
+
+var config = {
+  us: {thousand: ',', decimal: '.'},
+  br: {thousand: '.', decimal: ','}
+};
+
+var decimal = maskFactory(function (el, ref) {
+  var value = ref.value;
+  var arg = ref.arg;
+  var modifiers = ref.modifiers;
+
+  var key = arg || Object.keys(modifiers)[0] || 'us';
+  var conf = config[key];
+
+  var pattern = "#" + (conf.thousand) + "##0";
+
+  if (value && value > 0) {
+    pattern += conf.decimal;
+    while (value > 0) {
+      pattern += '0';
+      value--;
+    }
+  }
+
+  return {
+    pattern: pattern,
+    options: {reverse: true},
+    clearValue: 'number',
+    format: function format(ref) {
+      var value = ref.value;
+      var formatter = ref.formatter;
+
+      return formatter.apply(Number(value));
+    }
+  }
+});
+
+var number = maskFactory(function () {
+  return {
+    pattern: '#0',
+    options: {reverse: true},
+    clearValue: 'number'
+  }
+});
+
+var cpf = maskFactory(function () {
+  return {
+    pattern: '000.000.000-00',
+    clearValue: 'number'
+  }
+});
+
+var cnpj = maskFactory(function () {
+  return {
+    pattern: '00.000.000/0000-00',
+    clearValue: 'number'
+  }
+});
+
+var cep = maskFactory(function () {
+  return {
+    pattern: '00.000-000',
+    clearValue: 'number'
+  }
+});
+
+var cc = maskFactory(function () {
+  return {
+    pattern: '0000 0000 0000 0000',
+    clearValue: 'number'
+  }
+});
+
+var model = {
+  bind: function bind(el, ref, vnode) {
+    var value = ref.value;
+    var expression = ref.expression;
+
+    el = getInputElement(el, vnode);
+
+    var expressionParts = expression.replace(/\[(\d+)]/, '.$1').split('.');
+
+    var updateModelValue = function (val) {
+      var obj = vnode.context;
+      var parts = expressionParts.slice(0);
+      while (parts.length > 1) {
+        obj = obj[parts.shift()];
+      }
+      return obj[parts.shift()] = val;
+    };
+
+    el.addEventListener('input', function (ref) {
+      var target = ref.target;
+
+      return updateModelValue(target.value);
+    }, false);
+
+    el.value = value;
+  },
+  update: function update(el, ref, vnode) {
+    var value = ref.value;
+    var oldValue = ref.oldValue;
+
+    if (value !== oldValue) {
+      el = getInputElement(el, vnode);
+      el.value = value;
+    }
+  }
+};
+
+var _Vue;
+
+function install(Vue) {
+  if (install.installed) {
+    return;
+  }
+
+  _Vue = Vue;
+
+  Vue.directive('mask', mask);
+  Vue.directive('maskDate', date);
+  Vue.directive('maskPhone', phone);
+  Vue.directive('maskDecimal', decimal);
+  Vue.directive('maskNumber', number);
+  Vue.directive('maskCpf', cpf);
+  Vue.directive('maskCnpj', cnpj);
+  Vue.directive('maskCep', cep);
+  Vue.directive('maskCc', cc);
+  Vue.directive('maskModel', model);
+
+  install.installed = true;
+}
+
+var index = {install: install};
+
+if (typeof window !== 'undefined' && window.Vue) {
+  window.Vue.use({install: install});
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (index);
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
+
+/***/ }),
+
 /***/ "./node_modules/jquery/dist/jquery.js":
 /*!********************************************!*\
   !*** ./node_modules/jquery/dist/jquery.js ***!
@@ -37666,6 +38255,17 @@ function normalizeComponent (
 
 /***/ }),
 
+/***/ "./node_modules/vue-the-mask/dist/vue-the-mask.js":
+/*!********************************************************!*\
+  !*** ./node_modules/vue-the-mask/dist/vue-the-mask.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function(e,t){ true?module.exports=t():undefined})(this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var a=n[r]={i:r,l:!1,exports:{}};return e[r].call(a.exports,a,a.exports,t),a.l=!0,a.exports}var n={};return t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:r})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p=".",t(t.s=10)}([function(e,t){e.exports={"#":{pattern:/\d/},X:{pattern:/[0-9a-zA-Z]/},S:{pattern:/[a-zA-Z]/},A:{pattern:/[a-zA-Z]/,transform:function(e){return e.toLocaleUpperCase()}},a:{pattern:/[a-zA-Z]/,transform:function(e){return e.toLocaleLowerCase()}},"!":{escape:!0}}},function(e,t,n){"use strict";function r(e){var t=document.createEvent("Event");return t.initEvent(e,!0,!0),t}var a=n(2),o=n(0),i=n.n(o);t.a=function(e,t){var o=t.value;if((Array.isArray(o)||"string"==typeof o)&&(o={mask:o,tokens:i.a}),"INPUT"!==e.tagName.toLocaleUpperCase()){var u=e.getElementsByTagName("input");if(1!==u.length)throw new Error("v-mask directive requires 1 input, found "+u.length);e=u[0]}e.oninput=function(t){if(t.isTrusted){var i=e.selectionEnd,u=e.value[i-1];for(e.value=n.i(a.a)(e.value,o.mask,!0,o.tokens);i<e.value.length&&e.value.charAt(i-1)!==u;)i++;e===document.activeElement&&(e.setSelectionRange(i,i),setTimeout(function(){e.setSelectionRange(i,i)},0)),e.dispatchEvent(r("input"))}};var s=n.i(a.a)(e.value,o.mask,!0,o.tokens);s!==e.value&&(e.value=s,e.dispatchEvent(r("input")))}},function(e,t,n){"use strict";var r=n(6),a=n(5);t.a=function(e,t){var o=!(arguments.length>2&&void 0!==arguments[2])||arguments[2],i=arguments[3];return Array.isArray(t)?n.i(a.a)(r.a,t,i)(e,t,o,i):n.i(r.a)(e,t,o,i)}},function(e,t,n){"use strict";function r(e){e.component(s.a.name,s.a),e.directive("mask",i.a)}Object.defineProperty(t,"__esModule",{value:!0});var a=n(0),o=n.n(a),i=n(1),u=n(7),s=n.n(u);n.d(t,"TheMask",function(){return s.a}),n.d(t,"mask",function(){return i.a}),n.d(t,"tokens",function(){return o.a}),n.d(t,"version",function(){return c});var c="0.11.1";t.default=r,"undefined"!=typeof window&&window.Vue&&window.Vue.use(r)},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(1),a=n(0),o=n.n(a),i=n(2);t.default={name:"TheMask",props:{value:[String,Number],mask:{type:[String,Array],required:!0},masked:{type:Boolean,default:!1},tokens:{type:Object,default:function(){return o.a}}},directives:{mask:r.a},data:function(){return{lastValue:null,display:this.value}},watch:{value:function(e){e!==this.lastValue&&(this.display=e)},masked:function(){this.refresh(this.display)}},computed:{config:function(){return{mask:this.mask,tokens:this.tokens,masked:this.masked}}},methods:{onInput:function(e){e.isTrusted||this.refresh(e.target.value)},refresh:function(e){this.display=e;var e=n.i(i.a)(e,this.mask,this.masked,this.tokens);e!==this.lastValue&&(this.lastValue=e,this.$emit("input",e))}}}},function(e,t,n){"use strict";function r(e,t,n){return t=t.sort(function(e,t){return e.length-t.length}),function(r,a){for(var o=!(arguments.length>2&&void 0!==arguments[2])||arguments[2],i=0;i<t.length;){var u=t[i];i++;var s=t[i];if(!(s&&e(r,s,!0,n).length>u.length))return e(r,u,o,n)}return""}}t.a=r},function(e,t,n){"use strict";function r(e,t){var n=!(arguments.length>2&&void 0!==arguments[2])||arguments[2],r=arguments[3];e=e||"",t=t||"";for(var a=0,o=0,i="";a<t.length&&o<e.length;){var u=t[a],s=r[u],c=e[o];s&&!s.escape?(s.pattern.test(c)&&(i+=s.transform?s.transform(c):c,a++),o++):(s&&s.escape&&(a++,u=t[a]),n&&(i+=u),c===u&&o++,a++)}for(var f="";a<t.length&&n;){var u=t[a];if(r[u]){f="";break}f+=u,a++}return i+f}t.a=r},function(e,t,n){var r=n(8)(n(4),n(9),null,null);e.exports=r.exports},function(e,t){e.exports=function(e,t,n,r){var a,o=e=e||{},i=typeof e.default;"object"!==i&&"function"!==i||(a=e,o=e.default);var u="function"==typeof o?o.options:o;if(t&&(u.render=t.render,u.staticRenderFns=t.staticRenderFns),n&&(u._scopeId=n),r){var s=u.computed||(u.computed={});Object.keys(r).forEach(function(e){var t=r[e];s[e]=function(){return t}})}return{esModule:a,exports:o,options:u}}},function(e,t){e.exports={render:function(){var e=this,t=e.$createElement;return(e._self._c||t)("input",{directives:[{name:"mask",rawName:"v-mask",value:e.config,expression:"config"}],attrs:{type:"text"},domProps:{value:e.display},on:{input:e.onInput}})},staticRenderFns:[]}},function(e,t,n){e.exports=n(3)}])});
+
+/***/ }),
+
 /***/ "./node_modules/vue/dist/vue.common.dev.js":
 /*!*************************************************!*\
   !*** ./node_modules/vue/dist/vue.common.dev.js ***!
@@ -49720,34 +50320,23 @@ module.exports = function(module) {
 /*!*****************************!*\
   !*** ./resources/js/app.js ***!
   \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_the_mask__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-the-mask */ "./node_modules/vue-the-mask/dist/vue-the-mask.js");
+/* harmony import */ var vue_the_mask__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_the_mask__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var di_vue_mask__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! di-vue-mask */ "./node_modules/di-vue-mask/dist/vue-mask.esm.js");
+__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js"); // import Vue from 'vue'
+
+
+
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
 Vue.component('example-component', __webpack_require__(/*! ./components/ExampleComponent.vue */ "./resources/js/components/ExampleComponent.vue")["default"]);
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
+Vue.use(vue_the_mask__WEBPACK_IMPORTED_MODULE_0___default.a);
+Vue.use(di_vue_mask__WEBPACK_IMPORTED_MODULE_1__["default"]);
 var app = new Vue({
   el: '#app'
 });

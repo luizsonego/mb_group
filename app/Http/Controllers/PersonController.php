@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePersonRequest;
 use App\Models\Person;
 use Illuminate\Http\Request;
 
@@ -48,14 +49,8 @@ class PersonController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePersonRequest $request)
     {
-        $request->validate([
-            'name'=>'required',
-            'cpf'=>'required|cpf',
-            'date_of_birth'=>'required',
-        ]);
-
         Person::create($request->all());
 
         return redirect()->route('person.index')

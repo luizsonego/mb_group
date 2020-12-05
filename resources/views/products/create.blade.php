@@ -17,7 +17,7 @@
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <strong>Whoops!</strong> Houve alguns problemas com sua entrada.<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -35,21 +35,21 @@
                 <div class="col-xs-12 col-sm-12 col-md-12">
                   <div class="form-group">
                       <strong>Codigo:</strong>
-                      <input type="text" name="code" class="form-control" placeholder="Codigo" required>
+                      <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" placeholder="Codigo" required value="{{ old('code')}}">
                   </div>
                 </div>
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                   <div class="form-group">
                     <strong>Nome:</strong>
-                    <input type="text" name="name" class="form-control" placeholder="Nome" required>
+                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nome" required value="{{ old('name')}}">
                   </div>
                 </div>
 
               <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                   <strong>Preço unitario:</strong>
-                  <input type="text" name="unit_price" id="product" class="form-control" placeholder="Preço unitario" required>
+                    <input v-model="maskDecimal" v-mask-decimal.us="2" type="text" name="unit_price" id="product" class="form-control @error('unit_price') is-invalid @enderror" placeholder="Preço unitario" required value="{{ old('unit_price')}}">
                 </div>
               </div>
 
@@ -58,6 +58,7 @@
               </div>
             </div>
 
+            
         </form>
       </div>
     </div>
@@ -66,3 +67,4 @@
 
 
 @endsection
+
