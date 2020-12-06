@@ -1,16 +1,25 @@
 * cone o repositorio
 
-``` composer install ``` > ira instalar as dependencias necessarias
+> Crie o arquivo .env
+``` cp .env.example .env ```
 
-``` php artisan ui vue --auth ``` > ira iniciar auth no projeto
+> Instale as dependencias necessarias
+``` composer install ``` 
 
-``` npm install && npm run dev ``` > instala as dependencias node
+> inicia o auth no projeto
+``` php artisan ui vue --auth ``` 
 
-criei um banco com nome mb (ou outro qualquer, configure-o no arquivo .env)
+> instala as dependencias node
+``` npm install && npm run dev ``` 
 
-``` php artisan migrate ``` > Criará o banco de dados baseado nas migration
 
-``` php artisan db:seed ```  > Popula o banco com dados do faker
+criei um banco com nome ´mb´ (ou outro qualquer, configure-o no arquivo .env)
+
+> para criar o banco de dados baseado nas migration
+``` php artisan migrate ``` 
+
+> Popula o banco com dados do faker
+``` php artisan db:seed ```  
 
 * inicie um servidor web para ver projeto em execução
 
