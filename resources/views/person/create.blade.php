@@ -53,7 +53,7 @@
                 <div class="col-xs-12 col-sm-12 col-md-12">
                   <div class="form-group">
                     <strong>CPF:</strong>
-                    <input type="text" name="cpf" class="form-control @error('cpf') is-invalid @enderror" placeholder="CPF" id="cpf" required value="{{ old('cpf')}}" v-mask="'###.###.###-##'" v-model="myInputModel" maxlength="14">
+                    <input type="text" name="cpf" class="form-control @error('cpf') is-invalid @enderror" placeholder="CPF" id="cpf" required value="{{ old('cpf')}}" v-model="maskCpf" v-mask-cpf>
                   </div>
                 </div>
 

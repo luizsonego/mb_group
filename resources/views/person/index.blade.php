@@ -45,45 +45,53 @@
         </div>
     </div>
 
-    <table class="table table-bordered table-responsive-lg">
-        <tr>
-            <th>Nome</th>
-            <th>cpf</th>
-            <th>Aniversario</th>
-            <th width="280px">Action</th>
-        </tr>
-        @foreach ($person as $p)
-            <tr>
-                <td>{{ $p->name }}</td>
-                <td>{{ $p->cpf }}</td>
-                <td>{{ $p->date_of_birth }}</td>
-                <td>
-                    <form action="{{ route('person.destroy', $p->id) }}" method="POST">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>cpf</th>
+                    <th>Aniversario</th>
+                    <th width="110px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($person as $p)
+                    <tr>
+                        <td>{{ $p->name }}</td>
+                        <td>{{ $p->cpf }}</td>
+                        <td>{{ $p->date_of_birth }}</td>
+                        <td>
+                            <form action="{{ route('person.destroy', $p->id) }}" method="POST">
 
-                        <a href="{{ route('person.show', $p->id) }}" title="show">
-                            <i class="fas fa-eye text-success  fa-lg"></i>
-                        </a>
+                                <a href="{{ route('person.show', $p->id) }}" title="show">
+                                    <i class="fas fa-eye text-success  fa-lg"></i>
+                                </a>
 
-                        <a href="{{ route('person.edit', $p->id) }}">
-                            <i class="fas fa-edit  fa-lg"></i>
-                        </a>
+                                <a href="{{ route('person.edit', $p->id) }}">
+                                    <i class="fas fa-edit  fa-lg"></i>
+                                </a>
 
-                        @csrf
-                        @method('DELETE')
+                                @csrf
+                                @method('DELETE')
 
-                        <button type="submit" title="delete" style="border: none; background-color:transparent;">
-                            <i class="fas fa-trash fa-lg text-danger"></i>
+                                <button type="submit" title="delete" style="border: none; background-color:transparent;">
+                                    <i class="fas fa-trash fa-lg text-danger"></i>
 
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </table>
-
-
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    
+    
+    <div class="pagination">
     {!! $person->links() !!}
-
+    </div>
+    
 </div>
 
 

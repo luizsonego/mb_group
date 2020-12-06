@@ -19,10 +19,11 @@ class ProductSeeder extends Seeder
         for($i=0; $i<=50; $i++):
             DB::table('products')
                 ->insert([
-                    'code' => $faker->unique()->randomDigit,
-                    'name' => $faker->unique()->realText(rand(10,20)),
-                    'unit_price' => $faker->randomFloat
+                    'code' => $faker->unique(true)->numberBetween(1, 500),
+                    'name' => $faker->unique()->word . $faker->randomLetter,
+                    'unit_price' => $faker->randomDigit
                 ]);
+                $faker->unique(true);
         endfor;
     }
 }

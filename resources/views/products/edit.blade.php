@@ -36,8 +36,8 @@
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <strong>Codigo:</strong>
-                        <textarea class="form-control" style="height:50px" name="code"
-                            placeholder="Codigo">{{ $product->code }}</textarea>
+                        <input type="text" class="form-control"  name="code"
+                        placeholder="Codigo" value="{{ $product->code }}">
                     </div>
                 </div>
 
@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                        <button type="submit" class="btn btn-primary">Enviar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
                 </div>
 

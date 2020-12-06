@@ -17,7 +17,7 @@ class CreateTableProducts extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name')->unique();
-            $table->double('unit_price', 9, 2);
+            $table->double('unit_price', 10, 2);
             $table->timestamps();
         });
     }

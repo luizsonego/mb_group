@@ -45,44 +45,50 @@
         </div>
     </div>
 
-    <table class="table table-bordered table-responsive-lg">
-        <tr>
-            <th>Cod.</th>
-            <th>Nome</th>
-            <th>Preço unitario</th>
-            <th width="280px">Action</th>
-        </tr>
-        @foreach ($products as $product)
-            <tr>
-                <td>{{ $product->code }}</td>
-                <td>{{ $product->name }}</td>
-                <td>{{ $product->unit_price }}</td>
-                <td>
-                    <form action="{{ route('products.destroy', $product->id) }}" method="POST">
 
-                        <a href="{{ route('products.show', $product->id) }}" title="show">
-                            <i class="fas fa-eye text-success  fa-lg"></i>
-                        </a>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Cod.</th>
+                    <th>Nome</th>
+                    <th>Preço unitario</th>
+                    <th width="110px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
 
-                        <a href="{{ route('products.edit', $product->id) }}">
-                            <i class="fas fa-edit  fa-lg"></i>
-                        </a>
+                @foreach ($products as $product)
+                <tr>
+                    <td>{{ $product->code }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ $product->unit_price }}</td>
+                    <td>
+                        <form action="{{ route('products.destroy', $product->id) }}" method="POST">
+                            <a href="{{ route('products.show', $product->id) }}" title="show">
+                                <i class="fas fa-eye text-success  fa-lg"></i> 
+                            </a>
+                            <a href="{{ route('products.edit', $product->id) }}">
+                                <i class="fas fa-edit  fa-lg"></i>
+                            </a>
 
-                        @csrf
-                        @method('DELETE')
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" title="delete" style="border: none; background-color:transparent;">
+                                <i class="fas fa-trash fa-lg text-danger"></i>
+                            </button>
 
-                        <button type="submit" title="delete" style="border: none; background-color:transparent;">
-                            <i class="fas fa-trash fa-lg text-danger"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </table>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-
-    {!! $products->links() !!}
-
+    <div class="pagination">
+        {!! $products->links() !!}
+    </div>
 </div>
 
 

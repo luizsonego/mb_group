@@ -57,7 +57,10 @@ class ProductsController extends Controller
             'unit_price'=>'required',
         ]);
 
-        Products::create($request->all());
+        $data = $request->all();
+        $data['unit_price'] = str_replace(',', '', $data['unit_price']);
+
+        Products::create($data);
 
         return redirect()->route('products.index')
             ->with('success', 'Produto criado com sucesso');
